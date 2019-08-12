@@ -1,0 +1,1 @@
+docker ps -q --filter ancestor="flask-image" | xargs docker stop

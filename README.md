@@ -6,7 +6,7 @@ A basic Python project using Flask web application framework.
 ### Requirements
 
 - Python 3.6+
-- Docker
+- Docker (To run locally)
 
 ### Running Standalone
 
@@ -35,4 +35,8 @@ Basically, it's only necessary to configure an Environment Variable on Deploymen
 
 ```bash
 . venv/bin/activate
+```
+
+```bash
+python3 -m venv venv
 ```

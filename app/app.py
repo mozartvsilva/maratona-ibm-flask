@@ -1,14 +1,38 @@
-from flask import Flask
+from flask import Flask, request
 import requests
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():
+
+@app.route('/get', methods=['GET'])
+def get():
+    url = 'https://jsonplaceholder.typicode.com/posts'
     headers = {
-      'content-type': 'text'
+        'content-type': 'text'
     }
-    r = requests.get('https://newsapi.org/v2/top-headlines?sources=google-news&apiKey=8049e496881049d3be91d4b7d5dfc753', headers)
-    news = r.json()
-    print(news)
-    return news
+    r = requests.get(url, headers)
+    posts = {'posts': r.json()}
+    print(posts)
+    return posts
+
+
+@app.route('/post', methods=['POST'])
+def post():
+    payload = request.get_json()
+    print('payload', payload)
+
+    url = 'https://jsonplaceholder.typicode.com/posts'
+    r = requests.post(url, data=payload)
+    print('response', r.json())
+    return r.json()
+
+
+@app.route('/put/<int:post_id>', methods=['PUT'])
+def put(post_id):
+    payload = request.get_json()
+    print('payload', payload)
+
+    url = 'https://jsonplaceholder.typicode.com/posts/%d' % post_id
+    r = requests.put(url, data=payload)
+    print('response', r.json())
+    return r.json()

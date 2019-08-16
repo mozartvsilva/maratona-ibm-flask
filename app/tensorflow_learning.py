@@ -1,10 +1,16 @@
 import tensorflow as tf
+import sklearn
 from tensorflow import keras
+from tensorflow.keras.callbacks import TensorBoard
 from sklearn.model_selection import train_test_split
 
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
+NAME = 'data-model-%d' % int(time.time())
+
+tensorboard = TensorBoard(log_dir= 'logs/%s' % NAME)
 print(tf.__version__)
 
 fashion_mnist = keras.datasets.fashion_mnist
@@ -14,27 +20,19 @@ fashion_mnist = keras.datasets.fashion_mnist
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
-# train_images, val_images, train_labels, val_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=13)
+train_images, val_images, train_labels, val_labels = train_test_split(train_images, train_labels, test_size=0.2, random_state=13)
 
-# print(np.array2string(train_images[0], precision=2,
-#                       separator=',', suppress_small=True))
-
+### normalize dataset
 original_test_images = test_images
 original_test_labels = test_labels
 train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
 test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
-# val_images = val_images.reshape(val_images.shape[0], 28, 28, 1)
+val_images = val_images.reshape(val_images.shape[0], 28, 28, 1)
 input_shape = (28, 28, 1)
 
 train_images = train_images.astype('float32') / 255
 test_images = test_images.astype('float32') / 255
-# val_images = val_images.astype('float32') / 255
-
-# train_images = train_images / 255.0
-# test_images = test_images / 255.0
-
-# print(np.array2string(train_images[0], precision=2,
-#                       separator=',', suppress_small=True))
+val_images = val_images.astype('float32') / 255
 
 # plt.figure()
 # plt.imshow(train_images[0])
@@ -44,7 +42,7 @@ test_images = test_images.astype('float32') / 255
 # plt.savefig('demo.png')
 
 
-def create_model():
+def create_model(optimizer = 'adam'):
     model = keras.Sequential([
         keras.layers.Conv2D(28, kernel_size=(3,3), input_shape=input_shape),
         keras.layers.MaxPooling2D(pool_size=(2, 2)),
@@ -53,7 +51,7 @@ def create_model():
         keras.layers.Dense(128, activation=tf.nn.relu),
         keras.layers.Dense(10, activation=tf.nn.softmax)
     ])
-    model.compile(optimizer='adam',
+    model.compile(optimizer=optimizer,
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy', 'sparse_categorical_crossentropy'])
     return model
@@ -83,8 +81,8 @@ model.summary()
 # model = keras.models.load_model('my_model.h5')
 
 ### training model
-history = model.fit(train_images, train_labels, batch_size=256, epochs=10,
-                    validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, batch_size=256, epochs=14,
+                    validation_data=(val_images, val_labels), verbose=1, callbacks=[tensorboard])
 
 ### training model with data augmentation
 # gen = keras.preprocessing.image.ImageDataGenerator(rotation_range=8, width_shift_range=0.08, shear_range=0.3,
@@ -94,6 +92,20 @@ history = model.fit(train_images, train_labels, batch_size=256, epochs=10,
 
 # history = model.fit_generator(batches, steps_per_epoch=48000//256, epochs=50,
 #                     validation_data=val_batches, validation_steps=12000//256, use_multiprocessing=True)
+
+### grid search model
+# optimizers = ['rmsprop', 'adam']
+# # inits = ['glorot_uniform', 'normal', 'uniform']
+# epochs = np.array([5])
+# batches = np.array([256])
+
+# model = keras.wrappers.scikit_learn.KerasClassifier(build_fn=create_model, verbose=1)
+
+# param_grid = dict(optimizer=optimizers, epochs=epochs, batch_size=batches)
+# grid = sklearn.model_selection.GridSearchCV(estimator=model, param_grid=param_grid)
+# grid_result = grid.fit(train_images, train_labels)
+# print('best_score_', grid_result.best_score_)
+# print('best_params_', grid_result.best_params_)
 
 ### saving model
 model.save('my_model.h5')

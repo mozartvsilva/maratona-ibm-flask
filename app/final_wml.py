@@ -1,0 +1,2 @@
+def wml():
+    print('wml')

@@ -1,0 +1,2 @@
+def iot():
+    print('iot')

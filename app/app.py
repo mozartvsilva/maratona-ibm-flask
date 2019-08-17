@@ -1,5 +1,7 @@
 from flask import Flask, request
 import requests
+import final_iot as iot
+import final_wml as wml
 
 app = Flask(__name__)
 

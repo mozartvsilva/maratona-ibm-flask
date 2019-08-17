@@ -26,8 +26,8 @@ train_images, val_images, train_labels, val_labels = train_test_split(train_imag
 original_test_images = test_images
 original_test_labels = test_labels
 train_images = train_images.reshape(train_images.shape[0], 28, 28, 1)
-test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
 val_images = val_images.reshape(val_images.shape[0], 28, 28, 1)
+test_images = test_images.reshape(test_images.shape[0], 28, 28, 1)
 input_shape = (28, 28, 1)
 
 train_images = train_images.astype('float32') / 255
